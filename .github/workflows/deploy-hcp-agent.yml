@@ -13,6 +13,10 @@ env:
   TF_LOG: INFO
   PROXMOX_VE_ENDPOINT: ${{ secrets.PROXMOX_VE_ENDPOINT }}
   PROXMOX_VE_API_TOKEN: ${{ secrets.PROXMOX_VE_API_TOKEN }}
+  TF_VAR_tfc_agent_token: ${{ secrets.TFC_AGENT_TOKEN }}
+  TF_VAR_ssh_public_key: ${{ secrets.HOMELAB_CICD_SSH_PUBLIC_KEY }}
+  TF_VAR_ssh_private_key: ${{ secrets.HOMELAB_CICD_SSH_PRIVATE_KEY }}
+  TF_VAR_lxc_password: ${{ secrets.LXC_ROOT_PASSWORD }}
 
 jobs:
   deploy-agent:
@@ -31,15 +35,6 @@ jobs:
           terraform_version: "1.15.8"
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
           terraform_wrapper: false
-
-      - name: Create local variables file
-        run: |
-          cat <<VARS > terraform.auto.tfvars
-          tfc_agent_token  = "${{ secrets.TFC_AGENT_TOKEN }}"
-          ssh_public_key   = "${{ secrets.HOMELAB_CICD_SSH_PUBLIC_KEY }}"
-          ssh_private_key  = "${{ secrets.HOMELAB_CICD_SSH_PRIVATE_KEY }}"
-          lxc_password     = "${{ secrets.LXC_ROOT_PASSWORD }}"
-          VARS
 
       - name: Terraform Init
         run: terraform init
