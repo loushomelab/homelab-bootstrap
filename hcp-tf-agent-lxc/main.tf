@@ -2,6 +2,7 @@ resource "proxmox_virtual_environment_container" "tfc_agent" {
   description = "HCP Terraform Agent LXC Container"
   node_name   = var.node_name
   vm_id       = var.vm_id
+  unprivileged = true
 
   initialization {
     hostname = "tfc-agent-lxc"
@@ -47,14 +48,11 @@ resource "proxmox_virtual_environment_container" "tfc_agent" {
 }
 
 # HA Resource Configuration for the Agent
-# This tells Proxmox HA manager to manage this LXC
 resource "proxmox_virtual_environment_haresource" "tfc_agent_ha" {
   depends_on = [proxmox_virtual_environment_container.tfc_agent]
 
   resource_id = "ct:${var.vm_id}"
   state       = "started"
-  # You can specify a group if you have created one, otherwise it balances across the cluster
-  # group = "your-ha-group" 
 }
 
 # Use null_resource to deploy Docker and HCP Agent
