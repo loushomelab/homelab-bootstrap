@@ -45,13 +45,19 @@ variable "datastore_id" {
 }
 
 variable "lxc_ip" {
-  description = "Static IP for LXC (required for remote-exec, e.g., 192.168.50.200/24)"
+  description = "Static IP for LXC (required for remote-exec)"
   type        = string
-  default     = "192.168.50.200/24"
+  default     = "192.168.50.200/23"
 }
 
 variable "lxc_gateway" {
   description = "Default gateway for LXC"
   type        = string
-  default     = "192.168.50.1"
+  default     = "192.168.50.254"
+}
+
+variable "lxc_dns" {
+  description = "DNS server for LXC"
+  type        = string
+  default     = "198.18.0.2"
 }

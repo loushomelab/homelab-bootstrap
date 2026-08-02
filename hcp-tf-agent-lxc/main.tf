@@ -22,6 +22,10 @@ resource "proxmox_virtual_environment_container" "tfc_agent" {
       }
     }
 
+    dns {
+      servers = [var.lxc_dns]
+    }
+
     user_account {
       keys     = [var.ssh_public_key]
       password = var.lxc_password
@@ -85,7 +89,10 @@ resource "null_resource" "deploy_tfc_agent" {
       "export TFC_AGENT_TOKEN='${var.tfc_agent_token}'",
       "export TFC_AGENT_NAME='homelab-lxc-docker-agent'",
       
-      "echo '=== 1. Install Docker ==='",
+      "echo '=== 1. Wait for DNS and Network ==='",
+      "for i in {1..30}; do if ping -c 1 download.docker.com &> /dev/null; then break; fi; echo 'Waiting for network...'; sleep 2; done",
+
+      "echo '=== 2. Install Docker ==='",
       "if ! command -v docker &> /dev/null; then",
       "  apt-get update",
       "  apt-get install -y ca-certificates curl gnupg",
@@ -97,7 +104,7 @@ resource "null_resource" "deploy_tfc_agent" {
       "  apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin",
       "fi",
       
-      "echo '=== 2. Run HCP Terraform Agent ==='",
+      "echo '=== 3. Run HCP Terraform Agent ==='",
       "docker stop tfc-agent || true",
       "docker rm tfc-agent || true",
       "docker run -d --name tfc-agent --restart unless-stopped --platform=linux/amd64 -e TFC_AGENT_TOKEN=\"$TFC_AGENT_TOKEN\" -e TFC_AGENT_NAME=\"$TFC_AGENT_NAME\" hashicorp/tfc-agent:latest"
