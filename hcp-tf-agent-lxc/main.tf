@@ -94,6 +94,7 @@ resource "null_resource" "deploy_tfc_agent" {
 
       "echo '=== 2. Install Docker ==='",
       "if ! command -v docker &> /dev/null; then",
+      "  dpkg --configure -a || true",
       "  apt-get update",
       "  apt-get install -y ca-certificates curl gnupg lsb-release",
       "  install -m 0755 -d /etc/apt/keyrings",
