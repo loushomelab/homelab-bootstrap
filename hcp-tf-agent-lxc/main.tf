@@ -1,3 +1,11 @@
+resource "proxmox_virtual_environment_download_file" "ubuntu_lxc_template" {
+  content_type = "vztmpl"
+  datastore_id = "local"
+  node_name    = var.node_name
+
+  url = "http://download.proxmox.com/images/system/ubuntu-22.04-standard_22.04-1_amd64.tar.zst"
+}
+
 resource "proxmox_virtual_environment_container" "tfc_agent" {
   description = "HCP Terraform Agent LXC Container"
   node_name   = var.node_name
@@ -38,7 +46,7 @@ resource "proxmox_virtual_environment_container" "tfc_agent" {
   }
 
   operating_system {
-    template_file_id = var.template_file_id
+    template_file_id = proxmox_virtual_environment_download_file.ubuntu_lxc_template.id
     type             = "ubuntu"
   }
 
