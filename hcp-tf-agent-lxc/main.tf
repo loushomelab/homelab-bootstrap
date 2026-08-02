@@ -48,7 +48,7 @@ resource "proxmox_virtual_environment_container" "tfc_agent" {
 
 # HA Resource Configuration for the Agent
 # This tells Proxmox HA manager to manage this LXC
-resource "proxmox_virtual_environment_cluster_ha" "tfc_agent_ha" {
+resource "proxmox_virtual_environment_haresource" "tfc_agent_ha" {
   depends_on = [proxmox_virtual_environment_container.tfc_agent]
 
   resource_id = "ct:${var.vm_id}"
