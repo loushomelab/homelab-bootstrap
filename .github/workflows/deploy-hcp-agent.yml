@@ -1,0 +1,48 @@
+name: "Deploy HCP Terraform Agent"
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'hcp-tf-agent-lxc/**'
+      - '.github/workflows/deploy-hcp-agent.yml'
+  workflow_dispatch:
+
+env:
+  TF_LOG: INFO
+  PROXMOX_VE_ENDPOINT: ${{ secrets.PROXMOX_VE_ENDPOINT }}
+  PROXMOX_VE_API_TOKEN: ${{ secrets.PROXMOX_VE_API_TOKEN }}
+
+jobs:
+  deploy-agent:
+    name: "Deploy HCP TF Agent LXC"
+    runs-on: [self-hosted, langshi, macos, ARM64]
+    defaults:
+      run:
+        working-directory: ./hcp-tf-agent-lxc
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.15.8"
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          terraform_wrapper: false
+
+      - name: Create local variables file
+        run: |
+          cat <<VARS > terraform.auto.tfvars
+          tfc_agent_token  = "${{ secrets.TFC_AGENT_TOKEN }}"
+          ssh_public_key   = "${{ secrets.HOMELAB_CICD_SSH_PUBLIC_KEY }}"
+          ssh_private_key  = "${{ secrets.HOMELAB_CICD_SSH_PRIVATE_KEY }}"
+          lxc_password     = "${{ secrets.LXC_ROOT_PASSWORD }}"
+          VARS
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
