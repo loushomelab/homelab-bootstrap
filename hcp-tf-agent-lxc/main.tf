@@ -1,4 +1,4 @@
-resource "proxmox_virtual_environment_download_file" "ubuntu_lxc_template" {
+resource "proxmox_download_file" "ubuntu_lxc_template" {
   content_type = "vztmpl"
   datastore_id = "local"
   node_name    = var.node_name
@@ -50,7 +50,7 @@ resource "proxmox_virtual_environment_container" "tfc_agent" {
   }
 
   operating_system {
-    template_file_id = proxmox_virtual_environment_download_file.ubuntu_lxc_template.id
+    template_file_id = proxmox_download_file.ubuntu_lxc_template.id
     type             = "ubuntu"
   }
 
@@ -60,7 +60,7 @@ resource "proxmox_virtual_environment_container" "tfc_agent" {
 }
 
 # HA Resource Configuration for the Agent
-resource "proxmox_virtual_environment_haresource" "tfc_agent_ha" {
+resource "proxmox_haresource" "tfc_agent_ha" {
   depends_on = [proxmox_virtual_environment_container.tfc_agent]
 
   resource_id = "ct:${var.vm_id}"
